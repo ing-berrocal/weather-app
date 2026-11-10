@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test, mock, spyOn } from "bun:test";
-import { getCurrentWeather } from "../src/forecast.ts";
+import { getCurrentWeather, getDailyForecast } from "../src/forecast.ts";
 
 // Restore the real fetch after each test
 afterEach(() => mock.restore());
@@ -63,5 +63,69 @@ describe("getCurrentWeather", () => {
     const weather = await getCurrentWeather(4.6, -74.08, "celsius");
 
     expect(weather.description).toBe("Desconocido");
+  });
+});
+
+describe("getDailyForecast", () => {
+  const daily = {
+    time: ["2026-11-10", "2026-11-11"],
+    weather_code: [0, 95],
+    temperature_2m_max: [24.1, 19.8],
+    temperature_2m_min: [12.3, 11.0],
+    precipitation_probability_max: [5, 80],
+  };
+
+  function mockDaily(value: Record<string, unknown>) {
+    return spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ daily: value }), { status: 200 }),
+    );
+  }
+
+  test("requests 7 days of daily variables in the local time zone", async () => {
+    const fetchMock = mockDaily(daily);
+
+    await getDailyForecast(4.6, -74.08, "fahrenheit");
+
+    const requested = new URL(String(fetchMock.mock.calls[0]?.[0]));
+    expect(requested.origin + requested.pathname).toBe("https://api.open-meteo.com/v1/forecast");
+    expect(requested.searchParams.get("latitude")).toBe("4.6");
+    expect(requested.searchParams.get("longitude")).toBe("-74.08");
+    expect(requested.searchParams.get("daily")).toBe(
+      "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max",
+    );
+    expect(requested.searchParams.get("forecast_days")).toBe("7");
+    expect(requested.searchParams.get("timezone")).toBe("auto");
+    expect(requested.searchParams.get("temperature_unit")).toBe("fahrenheit");
+  });
+
+  test("maps each day to a DailyForecast entry", async () => {
+    mockDaily(daily);
+
+    const days = await getDailyForecast(4.6, -74.08, "celsius");
+
+    expect(days).toEqual([
+      {
+        date: "2026-11-10",
+        maxTemperature: 24.1,
+        minTemperature: 12.3,
+        rainChance: 5,
+        description: "Despejado",
+      },
+      {
+        date: "2026-11-11",
+        maxTemperature: 19.8,
+        minTemperature: 11,
+        rainChance: 80,
+        description: "Tormenta",
+      },
+    ]);
+  });
+
+  test("returns 'Desconocido' for an unknown weather code", async () => {
+    mockDaily({ ...daily, weather_code: [999, 0] });
+
+    const days = await getDailyForecast(4.6, -74.08, "celsius");
+
+    expect(days[0]?.description).toBe("Desconocido");
   });
 });

@@ -1,5 +1,5 @@
 import { createInterface } from "node:readline/promises";
-import type { Weather } from "./forecast.ts";
+import type { DailyForecast, Weather } from "./forecast.ts";
 import type { City, TempUnit } from "./storage.ts";
 
 const rl = createInterface({ input: process.stdin, output: process.stdout });
@@ -44,6 +44,7 @@ export function printMenu(unit: TempUnit): void {
   3. Buscar y agregar ciudad
   4. Eliminar ciudad
   5. Establecer ciudad default
+  6. Pronóstico 7 días de una ciudad
   8. Ajustes (${unitSymbol(unit)})
   9. Salir
 ════════════════════════════════════════`));
@@ -66,4 +67,17 @@ export function printWeather(city: City, weather: Weather, unit: TempUnit): void
   Viento: ${weather.windSpeed} km/h
   Descripción: ${weather.description}
 `);
+}
+
+// Prints one line per day with max, min, rain chance and description
+export function printForecast(city: City, days: DailyForecast[], unit: TempUnit): void {
+  const symbol = unitSymbol(unit);
+  console.log(`
+  Pronóstico 7 días en ${placeLabel(city)}`);
+  for (const day of days) {
+    console.log(
+      `  ${day.date}  ${yellow(`Máx ${day.maxTemperature} ${symbol}`)}  Mín ${day.minTemperature} ${symbol}  Lluvia ${day.rainChance} %  ${day.description}`,
+    );
+  }
+  console.log("");
 }

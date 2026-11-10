@@ -1,4 +1,4 @@
-import { getCurrentWeather } from "./src/forecast.ts";
+import { getCurrentWeather, getDailyForecast } from "./src/forecast.ts";
 import { searchCity } from "./src/geocoding.ts";
 import { loadData, saveData, type City, type Data } from "./src/storage.ts";
 import {
@@ -7,6 +7,7 @@ import {
   green,
   placeLabel,
   printCities,
+  printForecast,
   printMenu,
   printWeather,
   red,
@@ -17,6 +18,12 @@ import {
 async function showWeather(city: City, data: Data): Promise<void> {
   const weather = await getCurrentWeather(city.latitude, city.longitude, data.unit);
   printWeather(city, weather, data.unit);
+}
+
+// Fetches and prints the 7-day forecast for one city
+async function showForecast(city: City, data: Data): Promise<void> {
+  const days = await getDailyForecast(city.latitude, city.longitude, data.unit);
+  printForecast(city, days, data.unit);
 }
 
 // Searches a city by name, lets the user pick a match, and adds it to the list
@@ -116,6 +123,11 @@ async function main(): Promise<void> {
             data.cities.forEach((c) => (c.isDefault = c === city));
             console.log(green(`  Ciudad default: ${placeLabel(city)}`));
           }
+          break;
+        }
+        case "6": {
+          const city = await pickCity(data);
+          if (city) await showForecast(city, data);
           break;
         }
         case "8":

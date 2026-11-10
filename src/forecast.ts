@@ -9,6 +9,14 @@ export type Weather = {
   description: string;
 };
 
+export type DailyForecast = {
+  date: string;
+  maxTemperature: number;
+  minTemperature: number;
+  rainChance: number;
+  description: string;
+};
+
 type ForecastResponse = {
   current: {
     temperature_2m: number;
@@ -16,6 +24,16 @@ type ForecastResponse = {
     relative_humidity_2m: number;
     wind_speed_10m: number;
     weather_code: number;
+  };
+};
+
+type DailyForecastResponse = {
+  daily: {
+    time: string[];
+    weather_code: number[];
+    temperature_2m_max: number[];
+    temperature_2m_min: number[];
+    precipitation_probability_max: number[];
   };
 };
 
@@ -75,4 +93,31 @@ export async function getCurrentWeather(
     windSpeed: current.wind_speed_10m,
     description: WEATHER_CODES[current.weather_code] ?? "Desconocido",
   };
+}
+
+// Returns the forecast for today and the next 6 days (7 days in total)
+export async function getDailyForecast(
+  latitude: number,
+  longitude: number,
+  unit: TempUnit,
+): Promise<DailyForecast[]> {
+  const url = new URL("https://api.open-meteo.com/v1/forecast");
+  url.searchParams.set("latitude", String(latitude));
+  url.searchParams.set("longitude", String(longitude));
+  url.searchParams.set(
+    "daily",
+    "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max",
+  );
+  url.searchParams.set("forecast_days", "7");
+  url.searchParams.set("timezone", "auto");
+  url.searchParams.set("temperature_unit", unit);
+
+  const { daily } = await getJson<DailyForecastResponse>(url);
+  return daily.time.map((date, i) => ({
+    date,
+    maxTemperature: daily.temperature_2m_max[i] ?? 0,
+    minTemperature: daily.temperature_2m_min[i] ?? 0,
+    rainChance: daily.precipitation_probability_max[i] ?? 0,
+    description: WEATHER_CODES[daily.weather_code[i] ?? -1] ?? "Desconocido",
+  }));
 }
