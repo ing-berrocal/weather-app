@@ -1,9 +1,16 @@
 ## Project
 
 - Console weather app built with Bun and TypeScript, using the Open-Meteo API (no API key).
-- The README (in Spanish) describes the goal: ask for a city, save a default city, track several cities, and eventually ship an executable.
-- `index.ts` is still a placeholder (`console.log("Hello via Bun!")`). The real app is not built yet.
+- The README (in Spanish) describes the goal and the menu layout. Menu option numbers are fixed: 6 and 7 do not exist.
 - User-facing text (menus, prompts, messages) should be in Spanish, matching the README menu.
+- `index.ts`: menu loop and actions. It saves state after each action, except option 9 (exit).
+- `src/api.ts`: shared `fetch` helper with Spanish error messages.
+- `src/geocoding.ts`: city search (Open-Meteo geocoding).
+- `src/forecast.ts`: current weather, plus WMO weather code to Spanish description map.
+- `src/storage.ts`: loads and saves `cities.json` in the project root.
+- `src/menu.ts`: readline prompt and printing helpers.
+- `cities.json` is user data created at runtime and is not gitignored. Do not commit it.
+- Piped stdin can lose lines because readline drops input that arrives before a question is asked. To test flows, send one line at a time with pauses.
 
 ## Commands
 
