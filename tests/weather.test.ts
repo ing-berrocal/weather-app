@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test, mock, spyOn } from "bun:test";
-import { getCurrentWeather, getDailyForecast } from "../src/forecast.ts";
+import { getCurrentWeather, getDailyForecast } from "../src/api/weather.ts";
 
 // Restore the real fetch after each test
 afterEach(() => mock.restore());

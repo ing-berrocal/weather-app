@@ -3,20 +3,21 @@
 - Console weather app built with Bun and TypeScript, using the Open-Meteo API (no API key).
 - The README (in Spanish) describes the goal and the menu layout. Menu option numbers are fixed: 7 does not exist.
 - User-facing text (menus, prompts, messages) should be in Spanish, matching the README menu.
-- `index.ts`: menu loop and actions. It saves state after each action, except option 9 (exit).
-- `src/api.ts`: shared `fetch` helper with Spanish error messages.
-- `src/geocoding.ts`: city search (Open-Meteo geocoding).
-- `src/forecast.ts`: current weather, 7-day forecast, plus WMO weather code to Spanish description map.
-- `src/storage.ts`: loads and saves `cities.json` in the project root. Both functions take an optional file path, which the tests use to avoid touching real data.
-- `tests/`: Bun tests for storage, `src/api.ts`, `src/geocoding.ts`, and `src/forecast.ts`. See Commands.
-- `src/menu.ts`: readline prompt, printing helpers, and ANSI colors (cyan menu, yellow temperature, green success, red errors). Colors are off when `NO_COLOR` is set or output is not a terminal.
+- `src/index.ts`: menu loop. It loads data at start and saves after each action, except option 9 (exit).
+- `src/actions/`: one file per user action (`getWeather.ts`, `getForecast.ts`, `addCity.ts`, `removeCity.ts`, `setDefaultCity.ts`, `toggleUnit.ts`).
+- `src/presentation/`: `menu.ts` (menu text and option prompt), `input.ts` (readline prompt, city picker), `output.ts` (printing helpers and messages).
+- `src/api/`: `client.ts` (shared `fetch` helper with Spanish error messages), `geocoding.ts` (city search), `weather.ts` (current weather and 7-day forecast).
+- `src/storage/`: `dataFile.ts` (reads and writes `cities.json` in the project root), `citiesStorage.ts` (saved cities), `settingsStorage.ts` (temperature unit). Both storage modules keep the other key in the same file. Functions take an optional file path, which the tests use to avoid touching real data.
+- `src/types/`: shared types (`City`, `Settings`, `AppData`, `Place`, `Weather`, `MenuOption`).
+- `src/utils/`: `colors.ts` (ANSI colors: cyan menu, yellow temperature, green success, red errors; off when `NO_COLOR` is set or output is not a terminal), `format.ts` (place labels, unit symbols), `constants.ts` (WMO weather code to Spanish description map).
+- `tests/`: Bun tests for `src/storage/`, `src/api/`. See Commands.
 - `cities.json` is user data created at runtime and is not gitignored. Do not commit it.
 - Piped stdin can lose lines because readline drops input that arrives before a question is asked. To test flows, send one line at a time with pauses.
 
 ## Commands
 
 - Install: `bun install`
-- Run: `bun index.ts`
+- Run: `bun src/index.ts`
 - Typecheck: `.\node_modules\.bin\tsc.exe --noEmit` (`bunx` is not on the PATH in this Windows setup)
 - Test: `bun test` (files in `tests/`). API calls are mocked with a fake `fetch`, and storage tests use a temp folder, so `cities.json` is never touched.
 - There is no lint or format script. Do not assume one exists.

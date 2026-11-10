@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test, mock, spyOn } from "bun:test";
-import { searchCity } from "../src/geocoding.ts";
+import { searchCity } from "../src/api/geocoding.ts";
 
 // Restore the real fetch after each test
 afterEach(() => mock.restore());

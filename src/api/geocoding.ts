@@ -1,12 +1,5 @@
-import { getJson } from "./api.ts";
-
-export type Place = {
-  name: string;
-  admin1?: string;
-  country?: string;
-  latitude: number;
-  longitude: number;
-};
+import type { Place } from "../types/Place.ts";
+import { getJson } from "./client.ts";
 
 type GeocodingResponse = {
   results?: Place[];

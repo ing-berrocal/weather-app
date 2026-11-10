@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test, mock, spyOn } from "bun:test";
-import { getJson } from "../src/api.ts";
+import { getJson } from "../src/api/client.ts";
 
 const url = new URL("https://example.com/data");
 
