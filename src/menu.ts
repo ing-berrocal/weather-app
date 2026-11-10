@@ -4,6 +4,19 @@ import type { City, TempUnit } from "./storage.ts";
 
 const rl = createInterface({ input: process.stdin, output: process.stdout });
 
+// Colors are off when NO_COLOR is set or when output is not a terminal
+const useColor = !process.env.NO_COLOR && process.stdout.isTTY;
+
+// Wraps text in an ANSI color code, or returns it unchanged when colors are off
+function paint(code: number, text: string): string {
+  return useColor ? `\x1b[${code}m${text}\x1b[0m` : text;
+}
+
+export const cyan = (text: string): string => paint(36, text);
+export const yellow = (text: string): string => paint(33, text);
+export const green = (text: string): string => paint(32, text);
+export const red = (text: string): string => paint(31, text);
+
 // Asks a question and returns the trimmed answer
 export async function ask(question: string): Promise<string> {
   return (await rl.question(question)).trim();
@@ -23,7 +36,7 @@ export function placeLabel(place: { name: string; admin1?: string; country?: str
 }
 
 export function printMenu(unit: TempUnit): void {
-  console.log(`════════════════════════════════════════
+  console.log(cyan(`════════════════════════════════════════
          WEATHER CLI
 ════════════════════════════════════════
   1. Clima de ciudad default
@@ -33,7 +46,7 @@ export function printMenu(unit: TempUnit): void {
   5. Establecer ciudad default
   8. Ajustes (${unitSymbol(unit)})
   9. Salir
-════════════════════════════════════════`);
+════════════════════════════════════════`));
 }
 
 export function printCities(cities: City[]): void {
@@ -47,7 +60,7 @@ export function printWeather(city: City, weather: Weather, unit: TempUnit): void
   const symbol = unitSymbol(unit);
   console.log(`
   Clima en ${placeLabel(city)}
-  Temperatura: ${weather.temperature} ${symbol}
+  ${yellow(`Temperatura: ${weather.temperature} ${symbol}`)}
   Sensación térmica: ${weather.feelsLike} ${symbol}
   Humedad: ${weather.humidity} %
   Viento: ${weather.windSpeed} km/h

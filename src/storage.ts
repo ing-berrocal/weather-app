@@ -20,14 +20,14 @@ export type Data = {
 const FILE = fileURLToPath(new URL("../cities.json", import.meta.url));
 
 // Reads saved cities and settings, or returns empty defaults on first run
-export async function loadData(): Promise<Data> {
-  const file = Bun.file(FILE);
+export async function loadData(path: string = FILE): Promise<Data> {
+  const file = Bun.file(path);
   if (!(await file.exists())) {
     return { unit: "celsius", cities: [] };
   }
   return (await file.json()) as Data;
 }
 
-export async function saveData(data: Data): Promise<void> {
-  await Bun.write(FILE, JSON.stringify(data, null, 2));
+export async function saveData(data: Data, path: string = FILE): Promise<void> {
+  await Bun.write(path, JSON.stringify(data, null, 2));
 }

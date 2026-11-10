@@ -4,10 +4,12 @@ import { loadData, saveData, type City, type Data } from "./src/storage.ts";
 import {
   ask,
   closeMenu,
+  green,
   placeLabel,
   printCities,
   printMenu,
   printWeather,
+  red,
   unitSymbol,
 } from "./src/menu.ts";
 
@@ -24,7 +26,7 @@ async function addCity(data: Data): Promise<void> {
 
   const places = await searchCity(name);
   if (places.length === 0) {
-    console.log("  No se encontró ninguna ciudad con ese nombre.");
+    console.log(red("  No se encontró ninguna ciudad con ese nombre."));
     return;
   }
 
@@ -34,7 +36,7 @@ async function addCity(data: Data): Promise<void> {
 
   const place = places[index];
   if (!place) {
-    console.log("  Opción no válida.");
+    console.log(red("  Opción no válida."));
     return;
   }
 
@@ -42,7 +44,7 @@ async function addCity(data: Data): Promise<void> {
     (city) => city.latitude === place.latitude && city.longitude === place.longitude,
   );
   if (exists) {
-    console.log("  Esa ciudad ya está registrada.");
+    console.log(red("  Esa ciudad ya está registrada."));
     return;
   }
 
@@ -55,20 +57,20 @@ async function addCity(data: Data): Promise<void> {
     longitude: place.longitude,
     isDefault: data.cities.length === 0,
   });
-  console.log(`  Ciudad agregada: ${placeLabel(place)}`);
+  console.log(green(`  Ciudad agregada: ${placeLabel(place)}`));
 }
 
 // Lists saved cities and returns the one the user picks
 async function pickCity(data: Data): Promise<City | undefined> {
   if (data.cities.length === 0) {
-    console.log("  No hay ciudades guardadas.");
+    console.log(red("  No hay ciudades guardadas."));
     return undefined;
   }
 
   printCities(data.cities);
   const index = Number(await ask("  Elige un número: ")) - 1;
   const city = data.cities[index];
-  if (!city) console.log("  Opción no válida.");
+  if (!city) console.log(red("  Opción no válida."));
   return city;
 }
 
@@ -86,12 +88,12 @@ async function main(): Promise<void> {
           if (city) {
             await showWeather(city, data);
           } else {
-            console.log("  No hay ciudad default. Usa la opción 5 para elegir una.");
+            console.log(red("  No hay ciudad default. Usa la opción 5 para elegir una."));
           }
           break;
         }
         case "2": {
-          if (data.cities.length === 0) console.log("  No hay ciudades guardadas.");
+          if (data.cities.length === 0) console.log(red("  No hay ciudades guardadas."));
           for (const city of data.cities) {
             await showWeather(city, data);
           }
@@ -104,7 +106,7 @@ async function main(): Promise<void> {
           const city = await pickCity(data);
           if (city) {
             data.cities = data.cities.filter((c) => c !== city);
-            console.log(`  Ciudad eliminada: ${placeLabel(city)}`);
+            console.log(green(`  Ciudad eliminada: ${placeLabel(city)}`));
           }
           break;
         }
@@ -112,22 +114,22 @@ async function main(): Promise<void> {
           const city = await pickCity(data);
           if (city) {
             data.cities.forEach((c) => (c.isDefault = c === city));
-            console.log(`  Ciudad default: ${placeLabel(city)}`);
+            console.log(green(`  Ciudad default: ${placeLabel(city)}`));
           }
           break;
         }
         case "8":
           data.unit = data.unit === "celsius" ? "fahrenheit" : "celsius";
-          console.log(`  Unidad cambiada a ${unitSymbol(data.unit)}`);
+          console.log(green(`  Unidad cambiada a ${unitSymbol(data.unit)}`));
           break;
         case "9":
           closeMenu();
           return;
         default:
-          console.log("  Opción no válida.");
+          console.log(red("  Opción no válida."));
       }
     } catch (error) {
-      console.log(`  Error: ${error instanceof Error ? error.message : String(error)}`);
+      console.log(red(`  Error: ${error instanceof Error ? error.message : String(error)}`));
     }
 
     await saveData(data);

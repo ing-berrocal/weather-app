@@ -16,6 +16,14 @@
       "latitude": 4.60971,
       "longitude": -74.08175,
       "isDefault": false
+    },
+    {
+      "name": "Medellín",
+      "admin1": "Antioquia",
+      "country": "Colombia",
+      "latitude": 6.245,
+      "longitude": -75.57151,
+      "isDefault": false
     }
   ]
 }
