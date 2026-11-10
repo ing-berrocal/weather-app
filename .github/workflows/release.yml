@@ -39,6 +39,10 @@ jobs:
         if: steps.check.outputs.exists == 'false'
         run: bun install --frozen-lockfile
 
+      - name: Run tests
+        if: steps.check.outputs.exists == 'false'
+        run: bun test
+
       - name: Build binary
         if: steps.check.outputs.exists == 'false'
         run: bun run build
